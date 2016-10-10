@@ -1,0 +1,42 @@
+- name: Copy plugins
+  copy: src={{ item }} dest=/usr/local/bin/{{ item }} owner=root group=root mode=0755
+  with_items:
+  - check_service
+  - check_oc
+  - check_etcd_cluster_health
+  - check_nodes
+  - check_availability
+
+- name: Allow to check things as root
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: "nrpe          ALL=(ALL) NOPASSWD: /usr/local/bin/{{ item }}"
+    backup: yes
+  with_items:
+  - check_service
+  - check_oc
+  - check_etcd_cluster_health
+  - check_nodes
+  - check_availability
+
+- name: Do not require tty to run sudo check_thing
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: "Defaults!/usr/local/bin/{{ item }} !requiretty"
+    backup: yes
+  with_items:
+  - check_service
+  - check_oc
+  - check_etcd_cluster_health
+  - check_nodes
+  - check_availability
+
+- name: Configure checks
+  copy: src=nagios-openshift-master.cfg dest=/etc/nrpe.d/nagios-openshift-master.cfg owner=root group=root mode=0755
+  notify: restart nrpe
+
+- name: Configure nrpe and selinux
+  copy: src=nrpe.pp dest=/usr/local/bin/nrpe.pp owner=root group=root mode=0755
+  notify: allow nrpe

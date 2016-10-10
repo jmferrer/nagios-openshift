@@ -1,0 +1,26 @@
+- name: Copy plugins
+  copy: src={{ item }} dest=/usr/local/bin/{{ item }} owner=root group=root mode=0755
+  with_items:
+  - check_service
+
+- name: Allow to check services as root
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: "nrpe          ALL=(ALL) NOPASSWD: /usr/local/bin/check_service"
+    backup: yes
+
+- name: Do not require tty to run sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: "Defaults!/usr/local/bin/check_service !requiretty"
+    backup: yes
+
+- name: Configure checks
+  copy: src=nagios-openshift-node.cfg dest=/etc/nrpe.d/nagios-openshift-node.cfg owner=root group=root mode=0755
+  notify: restart nrpe
+
+- name: Configure nrpe and selinux
+  copy: src=nrpe.pp dest=/usr/local/bin/nrpe.pp owner=root group=root mode=0755
+  notify: allow nrpe

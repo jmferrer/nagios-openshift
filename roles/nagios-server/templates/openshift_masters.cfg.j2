@@ -1,0 +1,93 @@
+define hostgroup {
+    hostgroup_name openshift_masters
+    alias OpenShift Node
+}
+## Default
+{% for host in groups ['openshift-nodes-master'] %}
+define host{
+    use                             linux-box
+    host_name                       {{ hostvars[host].ansible_hostname }}_master
+    alias                           {{ hostvars[host].ansible_hostname }}
+    address                         {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+		hostgroups openshift_masters
+}
+{% endfor %}
+
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     CPU Load
+    check_command           check_nrpe_1arg!check_load
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     Users
+    check_command           check_nrpe_1arg!check_users
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     Root disk
+    check_command           check_nrpe_1arg!check_root_disk
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     Zombie procs
+    check_command           check_nrpe_1arg!check_zombie_procs
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     Total procs
+    check_command           check_nrpe_1arg!check_total_procs
+}
+
+# Specific openshift services
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     OpenShift Master
+    check_command           check_nrpe_1arg!check_openshift_master_service
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     etcd service
+    check_command           check_nrpe_1arg!check_etcd_service
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     etcd cluster health
+    check_command           check_nrpe_1arg!check_etcd_cluster_health
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     oc nodes
+    check_command           check_nrpe_1arg!check_oc_nodes
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     check all nodes
+    check_command           check_nrpe_1arg!check_nodes
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_masters
+    service_description     check availability percentage of cluster
+    check_command           check_nrpe_1arg!check_availability
+}

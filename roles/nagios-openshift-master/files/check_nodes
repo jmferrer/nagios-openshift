@@ -1,0 +1,66 @@
+#!/bin/python
+# -*- coding: utf-8 -*-
+import subprocess
+import yaml
+import sys
+
+key_status_type = "Ready"
+expected_status_type = {
+    "Ready": {
+        "status": "True",
+        "alert": "critical"
+    },
+    "OutOfDisk": {
+        "status": "False",
+        "alert": "warning"
+    }
+}
+
+p = subprocess.Popen(["oc", "get", "nodes", "-o", "yaml"],
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE)
+out, err = p.communicate()
+nodes = yaml.load(out)
+
+i = 0
+alert = "ok"
+nodename = ""
+problem = ""
+status_type = ""
+while (i < len(nodes["items"]) and alert == "ok"):
+    if nodes["items"][i]["kind"] == "Node":
+        j = 0
+        key_status_type_checked = 0
+        while ((j < len(nodes["items"][i]["status"]["conditions"]) and alert == "ok") or
+               key_status_type_checked == 0):
+            if nodes["items"][i]["status"]["conditions"][j]["type"] in expected_status_type:
+                if nodes["items"][i]["status"]["conditions"][j]["type"] == key_status_type:
+                    key_status_type_checked = 1
+                if (nodes["items"][i]["status"]["conditions"][j]["status"] !=
+                        expected_status_type[nodes["items"][i]["status"]["conditions"][j]["type"]]["status"]):
+                    alert = expected_status_type[nodes["items"][i]["status"]["conditions"][j]["type"]]["alert"]
+                    status_type = nodes["items"][i]["status"]["conditions"][j]["type"]
+                    nodename = nodes["items"][i]["metadata"]["name"]
+                    problem = nodes["items"][i]["status"]["conditions"][j]["status"]
+            j = j + 1
+    i = i + 1
+
+if alert == "ok":
+    print ("OK- All nodes running")
+    sys.exit(0)
+elif alert == "warning":
+    print (("WARNING- " + nodename + " has a " + status_type + " " + problem + " problem."))
+    sys.exit(1)
+elif alert == "critical":
+    print (("CRITICAL- " + nodename + " has a " + status_type + " " + problem + " problem."))
+    sys.exit(2)
+else:
+    print ("UNKNOWN- nodes unknown")
+    sys.exit(3)
+
+
+#print status["items"][1]["metadata"]["name"]
+#print status["items"][1]["spec"]["externalID"]
+#print status["items"][1]["metadata"]["labels"]
+#print status["items"][1]["status"]["conditions"][0]["type"]
+#print status["items"][1]["status"]["conditions"][0]["status"]

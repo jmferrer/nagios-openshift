@@ -1,0 +1,84 @@
+define hostgroup {
+    hostgroup_name openshift_nodes
+    alias OpenShift Node
+}
+## Default
+{% for host in groups ['openshift-nodes-master'] %}
+define host{
+    use                             linux-box
+    host_name                       {{ hostvars[host].ansible_hostname }}_node
+    alias                           {{ hostvars[host].ansible_hostname }}
+    address                         {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+		hostgroups openshift_nodes
+}
+{% endfor %}
+
+{% for host in groups ['openshift-nodes-infra'] %}
+define host{
+    use                             linux-box
+    host_name                       {{ hostvars[host].ansible_hostname }}_node
+    alias                           {{ hostvars[host].ansible_hostname }}
+    address                         {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+		hostgroups openshift_nodes
+}
+{% endfor %}
+
+{% for host in groups ['openshift-nodes-app'] %}
+define host{
+    use                             linux-box
+    host_name                       {{ hostvars[host].ansible_hostname }}_node
+    alias                           {{ hostvars[host].ansible_hostname }}
+    address                         {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+		hostgroups openshift_nodes
+}
+{% endfor %}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     CPU Load
+    check_command           check_nrpe_1arg!check_load
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     Users
+    check_command           check_nrpe_1arg!check_users
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     Root disk
+    check_command           check_nrpe_1arg!check_root_disk
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     Zombie procs
+    check_command           check_nrpe_1arg!check_zombie_procs
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     Total procs
+    check_command           check_nrpe_1arg!check_total_procs
+}
+
+# Specific openshift services
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     Open vSwitch service
+    check_command           check_nrpe_1arg!check_openvswitch_service
+}
+
+define service{
+    use                     openshift_service
+    hostgroup_name          openshift_nodes
+    service_description     OpenShift Node
+    check_command           check_nrpe_1arg!check_openshift_node_service
+}

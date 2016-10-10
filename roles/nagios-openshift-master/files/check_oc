@@ -1,0 +1,26 @@
+#!/bin/bash
+if [ "$#" -eq 1 ]; then
+    case "$1" in
+        nodes)
+            status=$(su -c "oc get nodes" | grep NotReady | wc -l)
+            ;;
+        *)
+            echo "UNKNOWN- $1 unknown"
+            exit 3
+            ;;
+    esac
+else
+    echo "UNKNOWN- Illegal number of parameters"
+    exit 3
+fi
+
+if [ "$status" -eq 0 ]; then
+    echo "OK- $1 running."
+    exit 0
+elif [ "$status" -gt 0 ]; then
+    echo "WARNING- $status node/s is/are down."
+    exit 1
+else
+    echo "UNKNOWN- $1 unknown"
+    exit 3
+fi

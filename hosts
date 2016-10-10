@@ -1,0 +1,31 @@
+[nagios-server]
+192.168.42.192 ansible_user=debian nagiosadminpassword=nagiosadmin
+
+[openshift-nodes-master]
+192.168.42.189 region=primary zone=zone1
+#192.168.42.190 region=primary zone=zone2
+#192.168.42.173 region=primary zone=zone3
+
+[openshift-nodes-infra]
+192.168.42.193 region=infra zone=zone1
+192.168.42.194 region=infra zone=zone2
+
+[openshift-nodes-app]
+192.168.42.191 region=primary zone=zone1
+#192.168.42.192 region=primary zone=zone2
+
+[all:vars]
+floating_cluster_ip=openshift.example.com
+openshift_public_hostname=openshift.example.com
+
+ansible_user=cloud-user
+ansible_become=true
+ansible_become_method=sudo
+ansible_become_user=root
+
+openshift_master_default_subdomain=cloudapps.example.com
+
+[all:children]
+openshift-nodes-master
+openshift-nodes-infra
+openshift-nodes-app

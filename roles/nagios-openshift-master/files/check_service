@@ -1,0 +1,19 @@
+#!/bin/bash
+if [ "$#" -eq 1 ]; then
+    systemctl status $1 > /dev/null
+    status=$?
+else
+    echo "UNKNOWN- Illegal number of parameters"
+    exit 3
+fi
+
+if [ "$status" -eq 0 ]; then
+    echo "OK- $1 running."
+    exit 0
+elif [ "$status" -gt 0 ]; then
+    echo "CRITICAL- $1 failed."
+    exit 2
+else
+    echo "UNKNOWN- $1 unknown"
+    exit 3
+fi

@@ -1,0 +1,40 @@
+- name: Set debconf nagiosadmin password value
+  debconf: name=nagios3-cgi question=nagios3/adminpassword value={{ nagiosadminpassword }} vtype='select'
+
+- name: Set debconf nagiosadmin password confirmation value
+  debconf: name=nagios3-cgi question=nagios3/adminpassword-repeat value={{ nagiosadminpassword }} vtype='select'
+
+- name: Install nagios server and plugins
+  apt: name={{ item }} state=present
+  with_items:
+  - nagios3
+  - nagios-nrpe-plugin
+  - nagios-nrpe-server
+  - monitoring-plugins
+
+- name: Create objects directory
+  file: path=/etc/nagios3/objects.d/ state=directory mode=0755
+  notify: restart nagios3
+
+- name: Include objects directory in nagios config file
+  lineinfile:
+    dest: /etc/nagios3/nagios.cfg
+    line: "cfg_dir=/etc/nagios3/objects.d"
+    backup: yes
+  notify: restart nagios3
+
+- name: Create openshift_box host template
+  copy: src=openshift_box.cfg dest=/etc/nagios3/objects.d/openshift_box.cfg owner=root group=root mode=0644
+  notify: restart nagios3
+
+- name: Create openshift_service host template
+  copy: src=openshift_service.cfg dest=/etc/nagios3/objects.d/openshift_service.cfg owner=root group=root mode=0644
+  notify: restart nagios3
+
+- name: Create openshift_nodes template
+  template: src=openshift_nodes.cfg.j2 dest=/etc/nagios3/objects.d/openshift_nodes.cfg owner=root group=root mode=0644
+  notify: restart nagios3
+
+- name: Create openshift_masters template
+  template: src=openshift_masters.cfg.j2 dest=/etc/nagios3/objects.d/openshift_masters.cfg owner=root group=root mode=0644
+  notify: restart nagios3

@@ -1,0 +1,19 @@
+#!/bin/bash
+listen_uri=$(grep ETCD_LISTEN_CLIENT_URLS /etc/etcd/etcd.conf | awk 'BEGIN{FS="="}{print $2}')
+etcdctl --cert-file=/etc/etcd/peer.crt \
+        --key-file=/etc/etcd/peer.key \
+        --ca-file=/etc/etcd/ca.crt \
+        --peers="$listen_uri" \
+        cluster-health > /dev/null
+status=$?
+
+if [ "$status" -eq 0 ]; then
+    echo "OK- $1 running."
+    exit 0
+elif [ "$status" -gt 0 ]; then
+    echo "CRITICAL- $1 failed."
+    exit 2
+else
+    echo "UNKNOWN- $1 unknown"
+    exit 3
+fi

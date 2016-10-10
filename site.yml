@@ -1,0 +1,28 @@
+- hosts: all
+  gather_facts: True
+
+- hosts: nagios-server
+  roles:
+  - nagios-server
+  tags: workingon
+
+- hosts:
+  - openshift-nodes-master
+  - openshift-nodes-infra
+  - openshift-nodes-app
+  roles:
+  - nagios-nrpe
+  gather_facts: False
+
+- hosts:
+  - openshift-nodes-master
+  - openshift-nodes-infra
+  - openshift-nodes-app
+  roles:
+  - nagios-openshift-node
+  gather_facts: False
+
+- hosts:
+  - openshift-nodes-master
+  roles:
+  - nagios-openshift-master

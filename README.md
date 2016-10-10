@@ -12,9 +12,12 @@ In https://github.com/jmferrer/nagios-openshift/tree/master/roles/nagios-openshi
 
 ### check_availability
 Checks the percentage of availability: https://github.com/jmferrer/nagios-openshift/blob/master/roles/nagios-openshift-master/files/check_availability
-OK: all OK
-Warning: a zone is down.
-Critical: a zone is down and some other servers are down in other zone.
+
+* OK: all OK
+
+* Warning: a zone is down.
+
+* Critical: a zone is down and some other servers are down in other zone.
 
 ### check_etcd_cluster_health
 Check etcd cluster health.

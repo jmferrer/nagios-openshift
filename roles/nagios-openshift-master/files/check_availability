@@ -72,7 +72,6 @@ while (i < len(nodes["items"])):
     i = i + 1
 
 #print region_status
-#{'primary': {'diegodeleon': {'total': 1, 'ok': 1}}, 'infra': {'alcala': {'total': 1, 'ok': 1}, 'diegodeleon': {'total': 1, 'ok': 0}}}
 region_problem = ""
 region_availability = 1.0
 regions = region_status.keys()
